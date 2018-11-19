@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%t] %c{4}:%L - %m %n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="rolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/default.log</file>
+     	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+	      <fileNamePattern>log/log-%i.log.zip</fileNamePattern>
+	      <minIndex>1</minIndex>
+	      <maxIndex>20</maxIndex>
+	    </rollingPolicy>
+	
+	    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+	      <maxFileSize>100MB</maxFileSize>
+	    </triggeringPolicy>
+	    <encoder>
+            <pattern>%d %-4p [%t] %c{4} \(%F:%L\) : %m%n</pattern>
+        </encoder>
+    </appender>
+	<root level="INFO">
+		<Appender-ref ref="rolling"/>
+		<appender-ref ref="console" />
+	</root>
+	
+	
+	<logger name="org.eclipse.jetty" level="INFO" />
+	<logger name="dna" level="INFO" />
+
+</configuration>

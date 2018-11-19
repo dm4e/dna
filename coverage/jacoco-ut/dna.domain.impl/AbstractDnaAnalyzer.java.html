@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractDnaAnalyzer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">dna</a> &gt; <a href="index.source.html" class="el_package">dna.domain.impl</a> &gt; <span class="el_source">AbstractDnaAnalyzer.java</span></div><h1>AbstractDnaAnalyzer.java</h1><pre class="source lang-java linenums">package dna.domain.impl;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dna.model.DiagonalDirection;
+
+/**
+ * DNA analysis services
+ */
+
+<span class="fc" id="L16">public abstract class AbstractDnaAnalyzer {</span>
+
+<span class="fc" id="L18">	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDnaAnalyzer.class);</span>
+
+	protected static final int MUTANT_LINE_MIN_REQUIRED = 2;
+
+<span class="fc" id="L22">	private static final Pattern MUTANT_LINE_PATTERN = Pattern.compile(&quot;AAAA|TTTT|CCCC|GGGG&quot;);</span>
+	
+	protected void findColumns(String[] matrix, AtomicInteger mutantLineCount) {
+<span class="fc" id="L25">		final String columnLines = obtainColumLines(matrix);</span>
+<span class="fc" id="L26">		findMutantSequence(columnLines, mutantLineCount);</span>
+<span class="fc" id="L27">		LOGGER.info(&quot;search end: Cols&quot;);</span>
+<span class="fc" id="L28">	}</span>
+
+	protected void findDiagonals(String[] matrix, DiagonalDirection direction, AtomicInteger mutantLineCount) {
+<span class="fc" id="L31">		final String columnLines = obtainDiagonalLines(matrix, direction);</span>
+<span class="fc" id="L32">		findMutantSequence(columnLines, mutantLineCount);</span>
+<span class="fc" id="L33">		LOGGER.info(&quot;search end: {}&quot;, direction);</span>
+<span class="fc" id="L34">	}</span>
+	
+	/**
+	 * determine when dna line has mutant sequences. Stop search when MUTANT_LINE_MIN_REQUIRED is reached.
+	 * @param line dna line
+	 * @param mutantLineCount result counter
+	 */
+	protected void findMutantSequence(String line, AtomicInteger mutantLineCount) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">		if(line ==null)		</span>
+<span class="fc" id="L43">			return;</span>
+		
+<span class="fc" id="L45">		final Matcher matcher = MUTANT_LINE_PATTERN.matcher(line);</span>
+
+<span class="fc bfc" id="L47" title="All 4 branches covered.">		while (mutantLineCount.get() &lt; MUTANT_LINE_MIN_REQUIRED &amp;&amp; matcher.find() ) {</span>
+<span class="fc" id="L48">			final String group = matcher.group();</span>
+<span class="fc" id="L49">			LOGGER.debug(&quot;find group: {}&quot;, group);</span>
+<span class="fc" id="L50">			mutantLineCount.incrementAndGet();</span>
+<span class="fc" id="L51">		}</span>
+<span class="fc" id="L52">	}</span>
+
+	protected void findRows(String[] matrix, AtomicInteger mutantLineCount) {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">		for (final String row : matrix) {</span>
+<span class="fc" id="L56">			findMutantSequence(row, mutantLineCount);</span>
+		}
+<span class="fc" id="L58">		LOGGER.info(&quot;search end: Rows&quot;);</span>
+<span class="fc" id="L59">	}</span>
+	
+	public abstract boolean isMutant(final String[] dnaMatrix);
+
+	protected String obtainColumLines(String[] matrix) {
+<span class="fc" id="L64">		final int n = matrix.length;</span>
+<span class="fc" id="L65">		final StringBuilder sbColumnLines = new StringBuilder(n*n+n);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		for (int c=0; c&lt;n; c++) {</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">			for (int r=0; r&lt;n; r++) {</span>
+<span class="fc" id="L68">				sbColumnLines.append( matrix[r].charAt(c));</span>
+			}
+<span class="fc" id="L70">			sbColumnLines.append(',');</span>
+		}
+<span class="fc" id="L72">		return sbColumnLines.toString();</span>
+	}
+	
+	protected String obtainDiagonalLines(String matrix[], DiagonalDirection direction) {
+<span class="fc" id="L76">		final int n = matrix.length;</span>
+<span class="fc" id="L77">		final StringBuilder sbColumnLines = new StringBuilder(n * (n + 2) - 1);</span>
+
+		// left part from main diagonal matrix according DiagonalDirection (main diagonal included)
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		for (int level = 0; level &lt; n; level++) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">			for (int row = 0, col = level; col &gt;= 0; row++, col--) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">				final int rowDirIndex = DiagonalDirection.TOP2LEFT == direction ? row : n - 1 - row;</span>
+<span class="fc" id="L83">				final char value = matrix[rowDirIndex].charAt(col);</span>
+<span class="fc" id="L84">				sbColumnLines.append(value);</span>
+			}
+<span class="fc" id="L86">			sbColumnLines.append(',');</span>
+		}
+
+		// right part from main diagonal matrix according DiagonalDirection (main diagonal excluded)
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		for (int level = 1; level &lt; n; level++) {</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">			for (int row = level, col = n - 1; row &lt; n; row++, col--) {</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">				final int rowDirIndex = DiagonalDirection.TOP2LEFT == direction ? row : n - 1 - row;</span>
+<span class="fc" id="L93">				final char value = matrix[rowDirIndex].charAt(col);</span>
+<span class="fc" id="L94">				sbColumnLines.append(value);</span>
+			}
+<span class="fc" id="L96">			sbColumnLines.append(',');</span>
+		}
+
+<span class="fc" id="L99">		return sbColumnLines.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

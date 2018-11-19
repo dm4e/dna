@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">dna</a> &gt; <a href="index.source.html" class="el_package">dna.server.config</a> &gt; <span class="el_source">WebConfiguration.java</span></div><h1>WebConfiguration.java</h1><pre class="source lang-java linenums">package dna.server.config;
+
+import java.util.List;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+@Configuration
+@EnableWebMvc
+@ComponentScan({ &quot;dna.domain&quot;, &quot;dna.repository&quot;, &quot;dna.server.controller&quot; })
+<span class="fc" id="L21">public class WebConfiguration extends WebMvcConfigurerAdapter {</span>
+
+	public static ObjectMapper createJsonMapperSnakeCase() {
+<span class="fc" id="L24">		final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L25">		mapper.setConfig(mapper.getDeserializationConfig()</span>
+<span class="fc" id="L26">				.without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)</span>
+<span class="fc" id="L27">				.with(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));</span>
+<span class="fc" id="L28">		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);</span>
+<span class="fc" id="L29">		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);</span>
+<span class="fc" id="L30">		mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);</span>
+<span class="fc" id="L31">		return mapper;</span>
+	}
+
+	@Override
+	public void configureMessageConverters(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters) {
+
+<span class="fc" id="L37">		final ObjectMapper mapper = createJsonMapperSnakeCase();</span>
+<span class="fc" id="L38">		final MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(mapper);</span>
+<span class="fc" id="L39">		converters.add(jsonConverter);</span>
+<span class="fc" id="L40">		converters.add(new StringHttpMessageConverter());</span>
+<span class="fc" id="L41">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

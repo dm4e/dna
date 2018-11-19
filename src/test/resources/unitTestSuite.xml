@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="unitTests" verbose="2" parallel="classes">
+	<test name="unitTests">
+		<groups>
+			<run>
+				<exclude name="integration" />
+				<exclude name="integration-data"  />
+			</run>
+		</groups>
+
+		<packages>
+			<package name="dna.*" />
+		</packages>
+	</test>
+</suite>
